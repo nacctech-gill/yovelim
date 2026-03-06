@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>יובלים גישור - ניהול לקוחות</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      background: #F2F2F7;
+      color: #1C1C1E;
+      min-height: 100vh;
+    }
+
+    /* ─── HEADER ─── */
+    .app-header {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 0.5px solid rgba(0,0,0,0.12);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-brand img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .header-brand-text h1 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1C1C1E;
+    }
+
+    .header-brand-text p {
+      font-size: 12px;
+      color: #8E8E93;
+    }
+
+    .header-badge {
+      background: #3AADA8;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.3px;
+    }
+
+    /* ─── LAYOUT ─── */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 28px 16px 60px;
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #1C1C1E;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+      font-size: 15px;
+      color: #8E8E93;
+      margin-bottom: 28px;
+    }
+
+    /* ─── CARD ─── */
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 16px 20px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #8E8E93;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ─── FORM ─── */
+    .form-group {
+      padding: 14px 20px;
+      border-bottom: 0.5px solid #F2F2F7;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group:last-child { border: none; }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #3C3C43;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid #E5E5EA;
+      font-size: 16px;
+      font-family: inherit;
+      color: #1C1C1E;
+      background: #FAFAFA;
+      transition: border-color 0.2s;
+      outline: none;
+      text-align: right;
+    }
+
+    .form-input:focus {
+      border-color: #3AADA8;
+      background: #fff;
+    }
+
+    .form-hint {
+      font-size: 12px;
+      color: #8E8E93;
+    }
+
+    /* ─── GENERATE BUTTON ─── */
+    .btn-full {
+      width: 100%;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.15s;
+      letter-spacing: -0.2px;
+    }
+
+    .btn-teal { background: #3AADA8; color: #fff; }
+    .btn-teal:active { background: #2E8B85; transform: scale(0.99); }
+    .btn-teal:disabled { background: #E5E5EA; color: #C7C7CC; cursor: not-allowed; transform: none; }
+
+    /* ─── RESULT CARD ─── */
+    .result-card {
+      display: none;
+      animation: fadeUp 0.35s ease;
+    }
+
+    .result-card.show { display: block; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .client-name-display {
+      padding: 16px 20px 0;
+      font-size: 20px;
+      font-weight: 800;
+      color: #1C1C1E;
+      letter-spacing: -0.3px;
+    }
+
+    .link-row {
+      padding: 14px 20px;
+      border-bottom: 0.5px solid #F2F2F7;
+    }
+
+    .link-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8E8E93;
+      margin-bottom: 8px;
+    }
+
+    .link-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #F2F2F7;
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+
+    .link-text {
+      flex: 1;
+      font-size: 13px;
+      color: #3C3C43;
+      word-break: break-all;
+      line-height: 1.4;
+      direction: ltr;
+      text-align: left;
+    }
+
+    .copy-btn {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #3AADA8;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:active { background: #2E8B85; }
+    .copy-btn.copied { background: #34C759; }
+
+    /* ─── ACTION BUTTONS ─── */
+    .actions-row {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-btn {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-whatsapp {
+      background: #25D366;
+      color: #fff;
+    }
+    .btn-whatsapp:active { background: #1EB954; }
+
+    .btn-email {
+      background: #007AFF;
+      color: #fff;
+    }
+    .btn-email:active { background: #0062CC; }
+
+    .btn-outline {
+      background: #F2F2F7;
+      color: #3AADA8;
+      border: 1.5px solid #3AADA8;
+    }
+    .btn-outline:active { background: #E5F5F4; }
+
+    .action-icon { font-size: 20px; }
+
+    /* ─── HISTORY ─── */
+    .history-list { padding: 0 0 8px; }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 0.5px solid #F2F2F7;
+      gap: 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .history-item:last-child { border: none; }
+    .history-item:active { background: #F2F2F7; }
+
+    .history-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3AADA8, #2E8B85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .history-info { flex: 1; }
+
+    .history-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1C1C1E;
+    }
+
+    .history-date {
+      font-size: 12px;
+      color: #8E8E93;
+      margin-top: 2px;
+    }
+
+    .history-arrow {
+      color: #C7C7CC;
+      font-size: 18px;
+    }
+
+    .empty-history {
+      padding: 24px 20px;
+      text-align: center;
+      color: #8E8E93;
+      font-size: 14px;
+    }
+
+    /* ─── TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 34px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      background: rgba(30,30,30,0.92);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 20px;
+      font-size: 14px;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      z-index: 1000;
+      max-width: 320px;
+      text-align: center;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { background: rgba(52,199,89,0.92); }
+
+    /* ─── CONFIG ─── */
+    .config-note {
+      background: #FFF9E6;
+      border: 1.5px solid #FFD60A;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #7A5C00;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .config-note strong { font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-brand">
+    <img src=".claude/תמונות/Y חדש.png" alt="יובלים" />
+    <div class="header-brand-text">
+      <h1>יובלים גישור</h1>
+      <p>מומחים בגישור</p>
+    </div>
+  </div>
+  <span class="header-badge">ניהול</span>
+</header>
+
+<div class="container">
+
+  <div class="page-title">שליחת לינק ללקוח</div>
+  <div class="page-subtitle">צרי לינק ייחודי לכל לקוח ושלחי ישירות בוואטסאפ</div>
+
+  <!-- Config warning (shown if base URL not set) -->
+  <div class="config-note" id="configNote">
+    <strong>שים לב:</strong> הדף פתוח מקובץ מקומי. כדי שהלקוח יוכל לפתוח את הלינק, יש לאחסן את <code>index.html</code> ב-GitHub Pages, Netlify או שירות דומה ולעדכן את כתובת הבסיס למטה.
+  </div>
+
+  <!-- Form -->
+  <div class="card">
+    <div class="card-header">פרטי לקוח</div>
+
+    <div class="form-group">
+      <label class="form-label" for="inputName">שם הלקוח / משפחה</label>
+      <input class="form-input" type="text" id="inputName" placeholder="לדוגמה: משפחת כהן" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="inputPhone">מספר וואטסאפ</label>
+      <input class="form-input" type="tel" id="inputPhone" placeholder="0521234567" />
+      <span class="form-hint">לשליחה אוטומטית בוואטסאפ</span>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="baseUrl">כתובת הדף (Base URL)</label>
+      <input class="form-input" type="url" id="baseUrl" placeholder="https://..." />
+      <span class="form-hint">כתובת הבסיס של index.html</span>
+    </div>
+
+    <div class="form-group">
+      <button class="btn-full btn-teal" onclick="generateLink()">צור לינק ושלח</button>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="card result-card" id="resultCard">
+    <div class="client-name-display" id="resultName"></div>
+
+    <div class="link-row">
+      <div class="link-label">לינק להעלאת מסמכים</div>
+      <div class="link-box">
+        <span class="link-text" id="resultLink"></span>
+        <button class="copy-btn" id="copyBtn" onclick="copyLink()">העתק</button>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="action-btn btn-whatsapp" id="waBtn" onclick="sendWhatsApp()">
+        <span class="action-icon">💬</span>
+        שלח בוואטסאפ
+      </button>
+      <button class="action-btn btn-email" id="emailBtn" onclick="sendEmail()">
+        <span class="action-icon">✉️</span>
+        שלח במייל
+      </button>
+      <button class="action-btn btn-outline" onclick="resetForm()">
+        לקוח חדש
+      </button>
+    </div>
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="card-header" style="padding: 16px 20px 8px;">היסטוריה</div>
+    <div class="history-list" id="historyList">
+      <div class="empty-history">עדיין לא נשלחו לינקים</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─── Init ──────────────────────────────────────────────────────
+  (function init() {
+    const loc = window.location.href;
+    const baseInput = document.getElementById('baseUrl');
+
+    // Load saved base URL from localStorage
+    const savedUrl = localStorage.getItem('yovelim_base_url');
+    if (savedUrl) {
+      baseInput.value = savedUrl;
+    } else if (loc.startsWith('https://') && !loc.includes('drive.google.com')) {
+      // Only auto-fill if hosted on a real web server (not Drive)
+      baseInput.value = loc.replace('manager.html', 'index.html').split('?')[0];
+    } else {
+      // Drive / local file - leave empty, show note
+      document.getElementById('configNote').style.display = 'block';
+    }
+
+    // Save base URL whenever it changes
+    baseInput.addEventListener('change', () => {
+      if (baseInput.value.trim()) {
+        localStorage.setItem('yovelim_base_url', baseInput.value.trim());
+      }
+    });
+
+    loadHistory();
+  })();
+
+  let currentLink = '';
+  let currentPhone = '';
+  let currentClientName = '';
+
+  // ─── Generate link ─────────────────────────────────────────────
+  function generateLink() {
+    const name  = document.getElementById('inputName').value.trim();
+    const phone = document.getElementById('inputPhone').value.trim();
+    const base  = document.getElementById('baseUrl').value.trim();
+
+    if (!name) { showToast('נא להזין שם לקוח'); return; }
+    if (!base) { showToast('נא להזין כתובת דף'); return; }
+
+    // Build link
+    const encodedName = encodeURIComponent(name);
+    const link = base.replace(/\/$/, '') + (base.includes('index.html') ? '' : '/index.html') + '?client=' + encodedName;
+
+    currentLink       = link;
+    currentPhone      = normalizePhone(phone);
+    currentClientName = name;
+
+    // Show result
+    document.getElementById('resultName').textContent = name;
+    document.getElementById('resultLink').textContent = link;
+    document.getElementById('resultCard').classList.add('show');
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // WhatsApp button - disable if no phone
+    document.getElementById('waBtn').disabled = !phone;
+    document.getElementById('waBtn').style.opacity = phone ? '1' : '0.4';
+
+    // Save to history
+    saveToHistory(name, link);
+  }
+
+  // ─── WhatsApp ──────────────────────────────────────────────────
+  function sendWhatsApp() {
+    if (!currentPhone) { showToast('לא הוזן מספר טלפון'); return; }
+
+    const message =
+      `שלום,\n\nמשרד יובלים גישור מזמין אותך להעלות את המסמכים הנדרשים לתהליך הגישור.\n\n` +
+      `לחץ/י על הלינק הבא:\n${currentLink}\n\n` +
+      `יובלים גישור 🌊`;
+
+    const waUrl = 'https://wa.me/' + currentPhone + '?text=' + encodeURIComponent(message);
+    window.open(waUrl, '_blank');
+  }
+
+  // ─── Email ─────────────────────────────────────────────────────
+  function sendEmail() {
+    const subject = encodeURIComponent('יובלים גישור - העלאת מסמכים');
+    const body    = encodeURIComponent(
+      `שלום,\n\nמשרד יובלים גישור מזמין אותך להעלות את המסמכים הנדרשים לתהליך הגישור.\n\n` +
+      `לחץ/י על הלינק הבא:\n${currentLink}\n\n` +
+      `יובלים גישור`
+    );
+    window.open('mailto:?subject=' + subject + '&body=' + body, '_blank');
+  }
+
+  // ─── Copy ──────────────────────────────────────────────────────
+  function copyLink() {
+    navigator.clipboard.writeText(currentLink).then(() => {
+      const btn = document.getElementById('copyBtn');
+      btn.textContent = '✓ הועתק';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'העתק';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+  }
+
+  // ─── Reset ─────────────────────────────────────────────────────
+  function resetForm() {
+    document.getElementById('inputName').value  = '';
+    document.getElementById('inputPhone').value = '';
+    document.getElementById('resultCard').classList.remove('show');
+    document.getElementById('inputName').focus();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ─── History ───────────────────────────────────────────────────
+  function saveToHistory(name, link) {
+    const history = getHistory();
+    const entry = { name, link, date: new Date().toLocaleDateString('he-IL') };
+    // Remove duplicate name if exists
+    const filtered = history.filter(h => h.name !== name);
+    filtered.unshift(entry);
+    const trimmed = filtered.slice(0, 20);
+    localStorage.setItem('yovelim_history', JSON.stringify(trimmed));
+    renderHistory(trimmed);
+  }
+
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem('yovelim_history') || '[]'); }
+    catch { return []; }
+  }
+
+  function loadHistory() {
+    renderHistory(getHistory());
+  }
+
+  function renderHistory(history) {
+    const el = document.getElementById('historyList');
+    if (!history.length) {
+      el.innerHTML = '<div class="empty-history">עדיין לא נשלחו לינקים</div>';
+      return;
+    }
+
+    el.innerHTML = history.map(h => `
+      <div class="history-item" onclick="loadClient('${escHtml(h.name)}', '${escHtml(h.link)}')">
+        <div class="history-avatar">${h.name.charAt(0)}</div>
+        <div class="history-info">
+          <div class="history-name">${escHtml(h.name)}</div>
+          <div class="history-date">${h.date}</div>
+        </div>
+        <div class="history-arrow">›</div>
+      </div>
+    `).join('');
+  }
+
+  function loadClient(name, link) {
+    currentLink       = link;
+    currentClientName = name;
+    document.getElementById('inputName').value    = name;
+    document.getElementById('resultName').textContent = name;
+    document.getElementById('resultLink').textContent = link;
+    document.getElementById('resultCard').classList.add('show');
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ─── Helpers ───────────────────────────────────────────────────
+  function normalizePhone(phone) {
+    phone = phone.replace(/\D/g, '');
+    if (phone.startsWith('0')) phone = '972' + phone.slice(1);
+    if (!phone.startsWith('972')) phone = '972' + phone;
+    return phone;
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast show';
+    setTimeout(() => { toast.className = 'toast'; }, 3000);
+  }
+
+  // Enter key on form
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && (e.target.id === 'inputName' || e.target.id === 'inputPhone')) {
+      generateLink();
+    }
+  });
+</script>
+</body>
+</html>
